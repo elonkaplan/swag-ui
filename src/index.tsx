@@ -5,6 +5,7 @@ import { Hono } from "hono";
 import { LoginPage } from "./pages/login";
 import { NotFoundPage } from "./pages/not-found";
 import { RegisterPage } from "./pages/register";
+import axios from "axios";
 import { jsxRenderer } from "hono/jsx-renderer";
 import { renderer } from "./helpers/renderer";
 
@@ -28,6 +29,47 @@ app.get("/register", (c) => {
 
 app.get("/friends", (c) => {
   return c.render(<FriendsPage />);
+});
+
+app.get("/api/*", async (c) => {
+  const { data } = await axios.get(
+    c.env.API_URL + c.req.path.replace("/api", ""),
+    {
+      params: c.req.query(),
+      headers: c.req.header("Authorization")
+        ? { Authorization: c.req.header("Authorization") }
+        : {},
+    }
+  );
+
+  return c.json(data);
+});
+
+app.post("/api/*", async (c) => {
+  const { data } = await axios.post(
+    c.env.API_URL + c.req.path.replace("/api", ""),
+    await c.req.json(),
+    {
+      headers: c.req.header("Authorization")
+        ? { Authorization: c.req.header("Authorization") }
+        : {},
+    }
+  );
+
+  return c.json(data);
+});
+
+app.delete("/api/*", async (c) => {
+  const { data } = await axios.delete(
+    c.env.API_URL + c.req.path.replace("/api", ""),
+    {
+      headers: c.req.header("Authorization")
+        ? { Authorization: c.req.header("Authorization") }
+        : {},
+    }
+  );
+
+  return c.json(data);
 });
 
 app.get("*", (c) => {

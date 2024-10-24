@@ -5,7 +5,6 @@ compatibility_flags = [ "nodejs_compat" ]
 
 [vars]
 API_URL = "https://swag-api.elonkaplan-dev.workers.dev"
-VITE_API_URL = "https://swag-api.elonkaplan-dev.workers.dev"
 
 # [[kv_namespaces]]
 # binding = "MY_KV_NAMESPACE"

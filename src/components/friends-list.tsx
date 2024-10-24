@@ -63,6 +63,25 @@ const wrapperClass = css`
     margin-top: 20px;
     margin-bottom: 20px;
   }
+
+  .input-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+
+    @media screen and (min-width: 596px) {
+      width: calc(100% / 3 - 10px);
+    }
+
+    .error {
+      color: red;
+      font-size: 12px;
+      position: absolute;
+      margin: 0;
+      bottom: -14px;
+    }
+  }
 `;
 
 export const FriendsList = () => {
@@ -83,7 +102,7 @@ export const FriendsList = () => {
     if (!isLoggedIn && !isLoading) {
       window.open("/", "_self");
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, isLoading]);
 
   const getFriendsList = useCallback(async () => {
     if (!user) {
@@ -91,9 +110,7 @@ export const FriendsList = () => {
     }
 
     const { data } = await axios.get<FriendsResult>(
-      `${import.meta.env.VITE_API_URL}/users/${
-        user.id
-      }/friends?page=${page}&limit=${PER_PAGE}`,
+      `/api/users/${user.id}/friends?page=${page}&limit=${PER_PAGE}`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -118,7 +135,7 @@ export const FriendsList = () => {
 
   const friendsToShow = useMemo(
     () => Object.values(friends).slice((page - 1) * PER_PAGE, page * PER_PAGE),
-    [friends, page]
+    [friends, page, total]
   );
 
   return (
@@ -165,7 +182,7 @@ export const FriendsList = () => {
 
           try {
             await axios.post(
-              `${import.meta.env.VITE_API_URL}/users/${user.id}/friends`,
+              `/api/users/${user.id}/friends`,
               {
                 name,
                 email,
@@ -192,76 +209,89 @@ export const FriendsList = () => {
           }
         }}
       >
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => {
-            const newName = (e.target as HTMLInputElement).value;
+        <div class="input-container">
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => {
+              const newName = (e.target as HTMLInputElement).value;
 
-            setName(newName);
+              setName(newName);
 
-            if (nameError && newName.length >= 3 && newName.length <= 20) {
-              setNameError("");
-            }
-          }}
-          onBlur={() => {
-            if (!name) {
-              setNameError("Name is required");
-            } else if (name.length < 3 || name.length > 20) {
-              setNameError("Name must be between 3 and 20 characters");
-            } else {
-              setNameError("");
-            }
-          }}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => {
-            const newEmail = (e.target as HTMLInputElement).value;
+              if (nameError && newName.length >= 3 && newName.length <= 20) {
+                setNameError("");
+              }
+            }}
+            onBlur={() => {
+              if (!name) {
+                setNameError("Name is required");
+              } else if (name.length < 3 || name.length > 20) {
+                setNameError("Name must be between 3 and 20 characters");
+              } else {
+                setNameError("");
+              }
+            }}
+          />
+          {nameError && <p class="error">{nameError}</p>}
+        </div>
+        <div class="input-container">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => {
+              const newEmail = (e.target as HTMLInputElement).value;
 
-            setEmail(newEmail);
+              setEmail(newEmail);
 
-            if (emailError && newEmail.length >= 3 && newEmail.length <= 20) {
-              setEmailError("");
-            }
-          }}
-          onBlur={() => {
-            if (!isEmail(email)) {
-              setEmailError("Email is invalid");
-            } else {
-              setEmailError("");
-            }
-          }}
-        />
-        <input
-          type="tel"
-          name="phone"
-          placeholder="Phone"
-          value={phone}
-          onChange={(e) => {
-            const newPhone = (e.target as HTMLInputElement).value;
+              if (emailError && newEmail.length >= 3 && newEmail.length <= 20) {
+                setEmailError("");
+              }
+            }}
+            onBlur={() => {
+              if (!isEmail(email)) {
+                setEmailError("Email is invalid");
+              } else {
+                setEmailError("");
+              }
+            }}
+          />
+          {emailError && <p class="error">{emailError}</p>}
+        </div>
+        <div class="input-container">
+          <input
+            type="tel"
+            name="phone"
+            placeholder="Phone"
+            value={phone}
+            onChange={(e) => {
+              const newPhone = (e.target as HTMLInputElement).value;
 
-            setPhone(newPhone);
+              setPhone(newPhone);
 
-            if (phoneError && newPhone.length >= 10 && newPhone.length <= 20) {
-              setPhoneError("");
-            }
-          }}
-          onBlur={() => {
-            if (!phone) {
-              setPhoneError("Phone is required");
-            } else if (phone.length < 10 || phone.length > 20) {
-              setPhoneError("Phone must be between 10 and 20 characters");
-            } else {
-              setPhoneError("");
-            }
-          }}
-        />
+              if (
+                phoneError &&
+                newPhone.length >= 10 &&
+                newPhone.length <= 20
+              ) {
+                setPhoneError("");
+              }
+            }}
+            onBlur={() => {
+              if (!phone) {
+                setPhoneError("Phone is required");
+              } else if (phone.length < 10 || phone.length > 20) {
+                setPhoneError("Phone must be between 10 and 20 characters");
+              } else {
+                setPhoneError("");
+              }
+            }}
+          />
+          {phoneError && <p class="error">{phoneError}</p>}
+        </div>
 
         <button type="submit">Add friend</button>
       </form>
@@ -287,9 +317,7 @@ export const FriendsList = () => {
                   }
 
                   await axios.delete(
-                    `${import.meta.env.VITE_API_URL}/users/${user.id}/friends/${
-                      friend.id
-                    }`,
+                    `/api/users/${user.id}/friends/${friend.id}`,
                     {
                       headers: {
                         Authorization: `Bearer ${localStorage.getItem(

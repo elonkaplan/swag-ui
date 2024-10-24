@@ -19,7 +19,7 @@ export const useUserData = () => {
       }
 
       const { data } = await axios.get<{ status: "ok"; user: User }>(
-        `${import.meta.env.VITE_API_URL}/auth/session`,
+        `/api/auth/session`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -40,7 +40,7 @@ export const useUserData = () => {
     } catch (error) {
       try {
         const { data } = await axios.post<AuthResult>(
-          `${import.meta.env.VITE_API_URL}/auth/refresh`,
+          `/api/auth/refresh`,
           {},
           {
             headers: {

@@ -103,13 +103,10 @@ export const AuthForm: FC<AuthFormProps> = ({ type }) => {
         }
 
         try {
-          const { data } = await axios.post<AuthResult>(
-            `${import.meta.env.VITE_API_URL}/auth/${type}`,
-            {
-              username,
-              password,
-            }
-          );
+          const { data } = await axios.post<AuthResult>(`/api/auth/${type}`, {
+            username,
+            password,
+          });
 
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
