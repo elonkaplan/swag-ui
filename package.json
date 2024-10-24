@@ -8,6 +8,7 @@
     "deploy": "$npm_execpath run build && wrangler pages deploy"
   },
   "dependencies": {
+    "axios": "^1.7.7",
     "hono": "^4.6.6"
   },
   "devDependencies": {
