@@ -1,8 +1,12 @@
+# Run locally in dev mode:
 ```txt
-npm install
-npm run dev
+yarn
+yarn dev
 ```
 
+# Run locally in preview mode:
 ```txt
-npm run deploy
+yarn
+yarn build
+yarn preview
 ```
